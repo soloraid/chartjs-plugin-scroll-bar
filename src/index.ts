@@ -2,7 +2,7 @@ import {afterDraw, afterUpdate, beforeInit} from './plugin';
 export * from './types';
 
 
-const chartjsPluginScrollBar = {
+const ChartjsPluginScrollBar = {
     id: 'scrollBar',
     beforeInit,
     afterDraw,
@@ -10,4 +10,4 @@ const chartjsPluginScrollBar = {
 };
 
 
-export default chartjsPluginScrollBar;
+export default ChartjsPluginScrollBar;
