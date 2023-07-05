@@ -1,0 +1,4 @@
+# Development folders and files
+/src
+/webpack
+package-lock.json

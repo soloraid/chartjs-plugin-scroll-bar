@@ -1,0 +1,36 @@
+{
+  "name": "chartjs-plugin-scroll-bar",
+  "version": "1.0.0",
+  "description": "scrollbar data in chart js",
+  "main": "dist/index.min.js",
+  "types": "types/index.d.ts",
+  "scripts": {
+    "test": "npm run test",
+    "type": "tsc",
+    "build:publish": "webpack --mode production --config ./webpack/plugin.config.js && tsc && npm publish"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/soloraid/chartjs-plugin-scroll-bar.git"
+  },
+  "keywords": [
+    "chartjs/plugins/scrollbar"
+  ],
+  "author": "hashem pourallahverdi",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/soloraid/chartjs-plugin-scroll-bar/issues"
+  },
+  "homepage": "https://github.com/soloraid/chartjs-plugin-scroll-bar#readme",
+  "peerDependencies": {
+    "chart.js": ">=3.9.1"
+  },
+  "devDependencies": {
+    "@types/chart.js": "^2.9.34",
+    "ts-loader": "^9.4.4",
+    "typescript": "^5.1.6",
+    "webpack": "^5.88.1",
+    "webpack-cli": "^5.1.4",
+    "webpack-dev-server": "^4.15.1"
+  }
+}
