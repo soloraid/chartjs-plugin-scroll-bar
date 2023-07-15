@@ -91,17 +91,15 @@ const scrollVertically = (slideFromStart: boolean, chart: Chart) => {
  chart.update();
 }
 
-const wheelHandler = (event: any, chart: Chart, pluginOptions: PluginOptions) => {
-  if(!pluginOptions.enable) {
-    return;
-  }
+const wheelHandler = (event: any, chart: Chart) => {
+  console.log(chart.options.indexAxis , chart.options.scales.x.min, chart.options.scales.y.min);
   
-  if (chart.options.indexAxis === 'x') {
+  if (chart.options.indexAxis === 'x' && !isNaN(+chart.options.scales.x.min)) {
     event.preventDefault();
     event.stopPropagation();
     scrollHorizontally(event.deltaX !== 0 ? event.deltaX < 0 : event.deltaY < 0, chart);
   }
-  if (chart.options.indexAxis === 'y') {
+  if (chart.options.indexAxis === 'y' && !isNaN(+chart.options.scales.y.min)) {
     event.preventDefault();
     event.stopPropagation();
     scrollVertically(event.deltaY < 0, chart);
@@ -115,31 +113,25 @@ const touchstartHandler = (event: any, chart: Chart) => {
   touchStartY = event.changedTouches[0].clientY;
 }
 
-const touchendHandler = (event: any, chart: Chart, pluginOptions: PluginOptions) => {
-  if(!pluginOptions.enable) {
-    return;
-  }
+const touchendHandler = (event: any, chart: Chart) => {
   const touchEndX = event.changedTouches[0].clientX;
   const touchEndY = event.changedTouches[0].clientY;
   event.preventDefault();
   event.stopPropagation();
-  if (chart.options.indexAxis === 'x' && touchEndX !== touchStartX) {
+  if (chart.options.indexAxis === 'x' && touchEndX !== touchStartX && !isNaN(+chart.options.scales.x.min)) {
     scrollHorizontally(touchEndX - touchStartX > 0, chart);
   }
-  if (chart.options.indexAxis === 'y' && touchEndY !== touchStartY) {
+  if (chart.options.indexAxis === 'y' && touchEndY !== touchStartY && !isNaN(+chart.options.scales.y.min)) {
     scrollVertically(touchEndY - touchStartY > 0, chart);
   }
 }
 
-const clickHandker = (event: any, chart: Chart, pluginOptions: PluginOptions) => {
-  if(!pluginOptions.enable) {
-    return;
-  }
+const clickHandker = (event: any, chart: Chart) => {
   const {canvas} = chart;
   const rect = canvas.getBoundingClientRect();
   let isScrollToStart = false;
   let isScrollToEnd = false;
-  if (chart.options.indexAxis === 'x') {
+  if (chart.options.indexAxis === 'x' && !isNaN(+chart.options.scales.x.min)) {
     isScrollToStart = (
       event.offsetX >= 0 &&
       event.offsetX <= buttonSize &&
@@ -156,7 +148,7 @@ const clickHandker = (event: any, chart: Chart, pluginOptions: PluginOptions) =>
       scrollHorizontally(isScrollToStart, chart);
     }
   }
-  if (chart.options.indexAxis === 'y') {
+  if (chart.options.indexAxis === 'y' && !isNaN(+chart.options.scales.y.min)) {
     isScrollToStart = (
       event.offsetX >= 0 &&
       event.offsetX <= buttonSize &&
@@ -235,10 +227,10 @@ export const afterDraw = (chart: Chart, args: any[], pluginOptions: PluginOption
 
 export const beforeInit = (chart: Chart, args: any[], pluginOptions: PluginOptions) => {
   handlers = {
-    wheel: (event: any) => wheelHandler(event, chart, pluginOptions),
+    wheel: (event: any) => wheelHandler(event, chart),
     touchstart: (event: any) => touchstartHandler(event, chart),
-    touchend: (event: any) => touchendHandler(event, chart, pluginOptions),
-    click: (event: any) => clickHandker(event, chart, pluginOptions),
+    touchend: (event: any) => touchendHandler(event, chart),
+    click: (event: any) => clickHandker(event, chart),
   }
   chart.canvas.addEventListener('wheel', handlers.wheel,{ passive: false });
   chart.canvas.addEventListener('touchstart', handlers.touchstart,{ passive: true });
@@ -248,9 +240,9 @@ export const beforeInit = (chart: Chart, args: any[], pluginOptions: PluginOptio
 
 export const beforeUpdate = (chart: Chart, args: any[], pluginOptions: PluginOptions) => {
   handlers = {
-    wheel: (event: any) => wheelHandler(event, chart, pluginOptions),
+    wheel: (event: any) => wheelHandler(event, chart),
     touchstart: (event: any) => touchstartHandler(event, chart),
-    touchend: (event: any) => touchendHandler(event, chart, pluginOptions),
-    click: (event: any) => clickHandker(event, chart, pluginOptions),
+    touchend: (event: any) => touchendHandler(event, chart),
+    click: (event: any) => clickHandker(event, chart),
   }
 }
