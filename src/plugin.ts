@@ -92,7 +92,6 @@ const scrollVertically = (slideFromStart: boolean, chart: Chart) => {
 }
 
 const wheelHandler = (event: any, chart: Chart) => {
-  console.log(chart.options.indexAxis , chart.options.scales.x.min, chart.options.scales.y.min);
   
   if (chart.options.indexAxis === 'x' && !isNaN(+chart.options.scales.x.min)) {
     event.preventDefault();
