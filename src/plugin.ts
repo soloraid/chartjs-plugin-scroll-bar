@@ -1,16 +1,16 @@
 import { Chart } from 'chart.js';
-import {PluginOptions} from './types';
+import {PluginOptions, ScrollType} from './types';
 
 
 
 var touchStartX = 0;
 var touchStartY = 0;
 var scrollSize = 1;
+var trackpad = false;
 const buttonSize = 16;
 const scrollThick = 8;
 const offsetX = 45;
 const offsetY = 45;
-let trackpad = false;
 
 const scrollData = (slideFromStart: boolean,min: number,max: number,dataLength: number, scrollSize: number): { min: number; max: number }  => {
     if (slideFromStart) {
@@ -45,7 +45,7 @@ const createScrollBar = (ctx: CanvasRenderingContext2D, coordinates: {containerX
 }
 
 const createScrollButton = (ctx: CanvasRenderingContext2D, container:{ x: number, y: number, width: number, height: number},
-  arrow: {x: number, y: number, offsetX: number, offsetY: number}) => {
+  arrow: {x: number, y: number, offsetX: number, offsetY: number}, type: ScrollType) => {
   ctx.beginPath();
   ctx.lineWidth = 1;
   ctx.strokeStyle = '#E8E8E8';
@@ -56,9 +56,16 @@ const createScrollButton = (ctx: CanvasRenderingContext2D, container:{ x: number
   ctx.beginPath();
   ctx.lineWidth = 1;
   ctx.strokeStyle = '#666666';
-  ctx.moveTo(arrow.x + arrow.offsetX, arrow.y - arrow.offsetY);
-  ctx.lineTo(arrow.x - arrow.offsetX, arrow.y);
-  ctx.lineTo(arrow.x + arrow.offsetX, arrow.y + arrow.offsetY);
+  if(type === 'Horizontal') {
+    ctx.moveTo(arrow.x + arrow.offsetX, arrow.y - arrow.offsetY);
+    ctx.lineTo(arrow.x - arrow.offsetX, arrow.y);
+    ctx.lineTo(arrow.x + arrow.offsetX, arrow.y + arrow.offsetY);
+  }
+  if(type === 'Vertical') {
+    ctx.moveTo(arrow.x - arrow.offsetX, arrow.y - arrow.offsetY);
+    ctx.lineTo(arrow.x , arrow.y + arrow.offsetY);
+    ctx.lineTo(arrow.x + arrow.offsetX, arrow.y - arrow.offsetY);
+  }
   ctx.stroke();
   ctx.closePath();
 }  
@@ -81,16 +88,15 @@ const scrollVertically = (slideFromStart: boolean, chart: Chart, scrollSize: num
 
 const wheelHandler = (chart: Chart) => {
   chart.canvas.addEventListener('wheel', (event: any) => {
-    trackpad = chart.options.indexAxis === 'x' ? event.deltaX !== 0 : (event.deltaY !== 0 && event.shiftKey);
-    if(event.shiftKey || trackpad) {
+    if (chart.options.indexAxis === 'x') {
       event.preventDefault();
       event.stopPropagation();
-      if (chart.options.indexAxis === 'x') {
-        scrollHorizontally(trackpad ? event.deltaX < 0 : event.deltaY < 0, chart, scrollSize);
-      }
-      if (chart.options.indexAxis === 'y') {
-        scrollVertically(event.deltaY < 0, chart, scrollSize);
-      }
+      scrollHorizontally(event.deltaX !== 0 ? event.deltaX < 0 : event.deltaY < 0, chart, scrollSize);
+    }
+    if (chart.options.indexAxis === 'y') {
+      event.preventDefault();
+      event.stopPropagation();
+      scrollVertically(event.deltaY < 0, chart, scrollSize);
     }
   },{ passive: false });
 }
@@ -109,10 +115,10 @@ const touchHandler = (chart: Chart) => {
       event.preventDefault();
       event.stopPropagation();
       if (chart.options.indexAxis === 'x' && touchEndX !== touchStartX) {
-        scrollHorizontally(touchEndX - touchStartX < 0, chart, scrollSize);
+        scrollHorizontally(touchEndX - touchStartX > 0, chart, scrollSize);
       }
       if (chart.options.indexAxis === 'y' && touchEndY !== touchStartY) {
-        scrollVertically(touchEndY - touchStartY < 0, chart, scrollSize);
+        scrollVertically(touchEndY - touchStartY > 0, chart, scrollSize);
       }
     },{ passive: true });
 }
@@ -121,27 +127,42 @@ const clickHandker = (chart: Chart) => {
   chart.canvas.addEventListener('click', (event: any) => {
     const {canvas} = chart;
     const rect = canvas.getBoundingClientRect();
-    let scrollToStart = false;
-    let scrollToEnd = false;
+    let isScrollToStart = false;
+    let isScrollToEnd = false;
     if (chart.options.indexAxis === 'x') {
-      scrollToStart = event.offsetX >= 0 &&  event.offsetX <= buttonSize &&
-       event.offsetY >= rect.height - buttonSize - 0.5 && event.offsetY <= rect.height - 0.5;
-      scrollToEnd = event.offsetX >= buttonSize + 5 &&  event.offsetX <= 2*buttonSize + 5 &&
-       event.offsetY >= rect.height - buttonSize - 0.5 && event.offsetY <= rect.height - 0.5;
-      if(scrollToStart) {
-        scrollHorizontally(true, chart, scrollSize);
-      }
-      if(scrollToEnd) {
-        scrollHorizontally(false, chart, scrollSize);
+      isScrollToStart = (
+        event.offsetX >= 0 &&
+        event.offsetX <= buttonSize &&
+        event.offsetY >= rect.height - buttonSize - 0.5 &&
+        event.offsetY <= rect.height - 0.5
+      );
+      isScrollToEnd = (
+        event.offsetX >= buttonSize + 5 &&
+        event.offsetX <= 2 * buttonSize + 5 &&
+        event.offsetY >= rect.height - buttonSize - 0.5 &&
+        event.offsetY <= rect.height - 0.5
+      );
+      if(isScrollToStart || isScrollToEnd) {
+        scrollHorizontally(isScrollToStart, chart, scrollSize);
       }
     }
     if (chart.options.indexAxis === 'y') {
-      // todo
-      if(scrollToStart) {
-        scrollVertically(true, chart, scrollSize);
-      }
-      if(scrollToEnd) {
-        scrollVertically(false, chart, scrollSize);
+      isScrollToStart = (
+        event.offsetX >= 0 &&
+        event.offsetX <= buttonSize &&
+        event.offsetY >= rect.height - (2 * buttonSize) - 1 &&
+        event.offsetY <= rect.height - buttonSize - 1 
+      );
+      
+      isScrollToEnd = (
+        event.offsetX >= 0 &&
+        event.offsetX <= buttonSize &&
+        event.offsetY >= rect.height - buttonSize - 1 &&
+        event.offsetY <= rect.height - 1 
+      );
+      
+      if(isScrollToStart || isScrollToEnd) {
+        scrollVertically(isScrollToStart, chart, scrollSize);
       }
     }
   },{ passive: true });
@@ -163,14 +184,13 @@ export const afterDraw = (chart: Chart, args: any[], pluginOptions: PluginOption
     const dataLength = chart.data.labels.length;
     const barWidth = (pluginOptions.scrollType === 'Vertical' ?
     ((rect.height - offsetY) / dataLength) : ((rect.width - offsetX )/ dataLength)) * pluginOptions.scrollSize;
-    const endPoint = top + ((rect.height - offsetY) / dataLength) * +chart.options.scales.y.min;
+    const endPoint = ((rect.height - offsetY) / dataLength) * +chart.options.scales.y.min + 1;
     const startPoint = offsetX + ((rect.width - offsetX ) / dataLength) * +chart.options.scales.x.min;
     if (pluginOptions.scrollSize < dataLength) {
       if (pluginOptions.scrollType === 'Vertical') {
-        // todo
         createScrollBar(ctx, {
-          containerX: 0,
-          containerY: top,
+          containerX:  0,
+          containerY: 1,
           containerWidth: scrollThick,
           containerHeight: rect.height - offsetY,
           scrollX: 0,
@@ -178,23 +198,27 @@ export const afterDraw = (chart: Chart, args: any[], pluginOptions: PluginOption
           scrollWidth: scrollThick,
           scrollHeight: barWidth,
         });
+        createScrollButton(ctx,  {x: 0, y: rect.height - buttonSize - 1, width: buttonSize, height: buttonSize},
+          {x: buttonSize / 2 , y: rect.height - buttonSize / 2 - 1, offsetX: 4.5, offsetY: 2.5} , pluginOptions.scrollType);
+        createScrollButton(ctx, {x: 0, y: rect.height - 2*buttonSize - 6, width: buttonSize, height: buttonSize},
+          {x: buttonSize / 2, y: rect.height - 3*buttonSize / 2 - 6 , offsetX: -4.5, offsetY: -2.5}, pluginOptions.scrollType);
 
       } else if (pluginOptions.scrollType === 'Horizontal') {
         createScrollBar(ctx, 
           {
             containerX: offsetX,
-            containerY: rect.height - scrollThick - 2,
+            containerY: rect.height - scrollThick - 1,
             containerWidth: rect.width - offsetX ,
             containerHeight: scrollThick,
             scrollX: startPoint,
-            scrollY: rect.height - scrollThick - 2,
+            scrollY: rect.height - scrollThick - 1,
             scrollWidth: barWidth,
             scrollHeight: scrollThick,
           });
-        createScrollButton(ctx,  {x: 0, y: rect.height - buttonSize - 0.5, width: buttonSize, height: buttonSize},
-          {x: buttonSize / 2 , y: rect.height - (buttonSize + 0.5) / 2, offsetX: 2.5, offsetY: 4.5});
-        createScrollButton(ctx, {x: buttonSize + 5, y: rect.height - buttonSize - 0.5, width: buttonSize, height: buttonSize},
-          {x: 3*buttonSize / 2 + 5, y: rect.height - (buttonSize + 0.5) / 2, offsetX: -2.5, offsetY: 4.5});
+        createScrollButton(ctx,  {x: 0, y: rect.height - buttonSize - 1, width: buttonSize, height: buttonSize},
+          {x: buttonSize / 2 , y: rect.height - (buttonSize +1) / 2, offsetX: 2.5, offsetY: 4.5}, pluginOptions.scrollType);
+        createScrollButton(ctx, {x: buttonSize + 5, y: rect.height - buttonSize - 1, width: buttonSize, height: buttonSize},
+          {x: 3*buttonSize / 2 + 5, y: rect.height - (buttonSize + 1) / 2, offsetX: -2.5, offsetY: 4.5}, pluginOptions.scrollType);
       }
     }
 };
