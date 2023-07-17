@@ -35,7 +35,7 @@ you must use indexAxis and min max of scales for working scrollbar.
 
 scroll size should be the difference between min and max of descriptor scale + 1.
 
-####example
+#### example
 ```javascript
 new Chart(document.getElementById("my-chart"), {
   type: "bar",
