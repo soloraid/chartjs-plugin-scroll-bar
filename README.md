@@ -69,7 +69,7 @@ new Chart(document.getElementById("my-chart"), {
 ## Contributing
 Pull requests and issues are always welcome.
 
-For bugs and feature requests, [please create an issue](https://github.com/y-takey/chartjs-plugin-stacked100/issues).
+For bugs and feature requests, [please create an issue](https://github.com/soloraid/chartjs-plugin-scroll-bar/issues).
 
 1.  Fork it!
 2.  Create your feature branch: `git checkout -b feature_name`
