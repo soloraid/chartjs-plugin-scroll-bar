@@ -1,6 +1,6 @@
 {
   "name": "chartjs-plugin-scroll-bar",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "description": "scrollbar data in chart js",
   "main": "dist/index.min.js",
   "types": "types/index.d.ts",
