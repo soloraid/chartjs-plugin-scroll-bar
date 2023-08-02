@@ -22,14 +22,13 @@ Chart.register(ChartjsPluginScrollBar);
 | :------------------|:------|:--------|:------------------------------------------------------------------------------------------------------------------------------------------|
 | enable             |boolean|undefined|                                                                                                                                           |
 | scrollType | 'Horizontal' \| 'Vertical' | undefined | depend on chart option indexAxis so x -> horizontal y-> vertical.                                                          |
-| scrollSize    | number | undefined    |  step of descriptor changing on scroll.                                                                                                  |
 
 
 ## Usage
 
 ### Basic
 
-specify plugin options with `scrollBar: {enable: true, scrollType: 'Horizontal', scrollSize: 2}`.
+specify plugin options with `scrollBar: {enable: true, scrollType: 'Horizontal'}`.
 
 you must use indexAxis and min max of scales for working scrollbar.
 
@@ -56,7 +55,7 @@ new Chart(document.getElementById("my-chart"), {
         }
     }
     plugins: {
-      scrollBar: {enable: true, scrollType: 'Horizontal', scrollSize: 2},
+      scrollBar: {enable: true, scrollType: 'Horizontal'},
     },
   },
 });
