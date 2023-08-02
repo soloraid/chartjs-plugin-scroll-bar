@@ -178,15 +178,17 @@ export const afterDraw = (chart: Chart, args: any[], pluginOptions: PluginOption
     if(pluginOptions.scrollType == null) {
         return;
     }
-    const {ctx, chartArea: {top}, canvas} = chart;
+    const {ctx, canvas} = chart;
     const rect = canvas.getBoundingClientRect();
     
     const dataLength = chart.data.labels.length;
+    const scrollSize = pluginOptions.scrollType === 'Vertical' ?
+     (+chart.options.scales.y.max - +chart.options.scales.y.min + 1): (+chart.options.scales.x.max - +chart.options.scales.x.min + 1);
     const barWidth = (pluginOptions.scrollType === 'Vertical' ?
-    ((rect.height - offsetY) / dataLength) : ((rect.width - offsetX )/ dataLength)) * pluginOptions.scrollSize;
+    ((rect.height - offsetY) / dataLength) : ((rect.width - offsetX )/ dataLength)) * scrollSize;
     const endPoint = ((rect.height - offsetY) / dataLength) * +chart.options.scales.y.min + 1;
     const startPoint = offsetX + ((rect.width - offsetX ) / dataLength) * +chart.options.scales.x.min;
-    if (pluginOptions.scrollSize < dataLength) {
+    if (scrollSize < dataLength) {
       if (pluginOptions.scrollType === 'Vertical') {
         createScrollBar(ctx, {
           containerX:  0,
