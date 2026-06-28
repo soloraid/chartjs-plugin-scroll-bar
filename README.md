@@ -60,6 +60,7 @@ new Chart(document.getElementById("my-chart"), {
   },
 });
 ```
+[Stackblitz](https://stackblitz.com/edit/angular-b8bj75?file=src%2Fmain.ts)
 
 
 ## Supported chart types
